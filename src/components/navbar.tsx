@@ -1,105 +1,53 @@
-"use client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  LoginLink,
+  RegisterLink,
+} from "@kinde-oss/kinde-auth-nextjs/components";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { NavbarLinks } from "./navbar-links";
+import { MobileMenu } from "./mobile-menu";
+import { UserNav } from "./user-nav";
 
-import React from "react";
-import { Menu, X } from "lucide-react";
-import { Button } from "./ui/button";
-
-const menuItems = [
-  {
-    name: "Home",
-    href: "#",
-  },
-  {
-    name: "Templates",
-    href: "#",
-  },
-  {
-    name: "UI Kits",
-    href: "#",
-  },
-  {
-    name: "Icons",
-    href: "#",
-  },
-];
-
-export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
+export async function Navbar() {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
   return (
-    <div className="relative w-full bg-background border-b shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
-        <div className="inline-flex items-center space-x-2">
-          <span className="font-bold text-2xl">
+    <nav className="relative max-w-7xl w-full flex md:grid md:grid-cols-12 items-center px-4 md:px-8 mx-auto py-7">
+      <div className="md:col-span-3">
+        <Link href="/">
+          <h1 className="text-2xl font-semibold ">
             Digi<span className="text-primary">Mart</span>
-          </span>
-        </div>
-        <div className="hidden lg:block">
-          <ul className="inline-flex space-x-8">
-            {menuItems.map((item) => (
-              <li key={item.name}>
-                <a
-                  href={item.href}
-                  className="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  {item.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="hidden lg:flex lg:gap-x-2">
-          <Button>Login</Button>
-          <Button variant="secondary">Sign Up</Button>
-        </div>
-        <div className="lg:hidden">
-          <Menu onClick={toggleMenu} className="h-6 w-6 cursor-pointer" />
-        </div>
-        {isMenuOpen && (
-          <div className="absolute inset-x-0 top-0 z-50 origin-top-right transform p-2 transition lg:hidden">
-            <div className="divide-y-2 divide-gray-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-              <div className="px-5 pb-6 pt-5">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center space-x-2">
-                    <span className="font-bold">DigiMart</span>
-                  </div>
-                  <div className="-mr-2">
-                    <button
-                      type="button"
-                      onClick={toggleMenu}
-                      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-                    >
-                      <span className="sr-only">Close menu</span>
-                      <X className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <nav className="grid gap-y-4">
-                    {menuItems.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        className="-m-3 flex items-center rounded-md p-3 text-sm font-semibold hover:bg-gray-50"
-                      >
-                        <span className="ml-3 text-base font-medium text-gray-900">
-                          {item.name}
-                        </span>
-                      </a>
-                    ))}
-                  </nav>
-                </div>
-                <Button>Login</Button>
-                <Button variant="secondary">Sign Up</Button>
-              </div>
-            </div>
+          </h1>
+        </Link>
+      </div>
+
+      <NavbarLinks />
+
+      <div className="flex items-center gap-x-2 ms-auto md:col-span-3">
+        {user ? (
+          <UserNav
+            email={user.email as string}
+            name={user.given_name as string}
+            userImage={
+              user.picture ?? `https://avatar.vercel.sh/${user.given_name}`
+            }
+          />
+        ) : (
+          <div className="flex items-center gap-x-2">
+            <Button asChild>
+              <LoginLink>Login</LoginLink>
+            </Button>
+            <Button variant="secondary" asChild>
+              <RegisterLink>Register</RegisterLink>
+            </Button>
           </div>
         )}
+
+        <div className="md:hidden">
+          <MobileMenu />
+        </div>
       </div>
-    </div>
+    </nav>
   );
 }
