@@ -1,7 +1,7 @@
 "use server";
 import prisma from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import {type CategoryEnum } from "@prisma/client";
+import { type CategoryEnum } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -27,6 +27,20 @@ const productSchema = z.object({
   productfile: z
     .string()
     .min(1, { message: "Pleaes upload a zip of your product" }),
+});
+
+const userSettingsSchema = z.object({
+  firstname: z
+    .string()
+    .min(3, { message: "Minimum length of 3 required" })
+    .or(z.literal(""))
+    .optional(),
+
+  lastname: z
+    .string()
+    .min(3, { message: "Minimum length of 3 required" })
+    .or(z.literal(""))
+    .optional(),
 });
 
 export async function SellProduct(prevState: any, formData: FormData) {
@@ -58,17 +72,58 @@ export async function SellProduct(prevState: any, formData: FormData) {
   }
 
   const data = await prisma.product.create({
-    data:{
-        name:parsedFields.data.name,
-        category:parsedFields.data.category as CategoryEnum,
-        price:parsedFields.data.price,
-        images:parsedFields.data.images,
-        productfile:parsedFields.data.productfile,
-        smalldescription: parsedFields.data.smalldescription,
-        description:JSON.parse(parsedFields.data.description),
-        userId:user.id
-    }
-  })
+    data: {
+      name: parsedFields.data.name,
+      category: parsedFields.data.category as CategoryEnum,
+      price: parsedFields.data.price,
+      images: parsedFields.data.images,
+      productfile: parsedFields.data.productfile,
+      smalldescription: parsedFields.data.smalldescription,
+      description: JSON.parse(parsedFields.data.description),
+      userId: user.id,
+    },
+  });
 
   return redirect(`/product/${data.id}`);
+}
+
+export async function UpdateUserSetting(prevState: any,formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  const parsedFields = userSettingsSchema.safeParse({
+    firstname: formData.get("firstname"),
+    lastname: formData.get("lastname"),
+  });
+
+  if (!parsedFields.success) {
+    const state: State = {
+      status: "error",
+      errors: parsedFields.error.flatten().fieldErrors,
+      message: "Oops, I think there is a mistake with your inputs.",
+    };
+
+    return state;
+  }
+
+  const data = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      firstname: parsedFields.data.firstname,
+      lastname: parsedFields.data.lastname,
+    },
+  });
+
+  const state: State = {
+    status: "success",
+    message: "Your Settings have been updated",
+  };
+
+  return state;
 }

@@ -19,6 +19,7 @@ import { Button } from "./ui/button";
 import { SellProduct, type State } from "@/app/action";
 import { useFormState } from "react-dom";
 import { toast } from "sonner";
+import SubmitButton from "./submit-button";
 
 export default function SellForm() {
   const initalState: State = { message: "", status: undefined };
@@ -156,7 +157,7 @@ export default function SellForm() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button type="submit">Submit Form</Button>
+        <SubmitButton title="Create Product"/>
       </CardFooter>
     </form>
   );
