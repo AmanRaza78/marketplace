@@ -29,7 +29,7 @@ export const ourFileRouter = {
       return { uploadedBy: metadata.userId };
     }),
 
-  productFileUpload: f({ "application/zip": { maxFileCount: 1 } })
+  productFileUpload: f({ "blob": { maxFileCount: 1 } })
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {
       const { getUser } = getKindeServerSession();
