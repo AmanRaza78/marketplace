@@ -31,7 +31,7 @@ export default async function NewestProducts() {
           Newest Products
         </h2>
         <Link
-          href="#"
+          href="products/all"
           className="text-sm hidden font-medium text-primary hover:text-primary/90 md:block"
         >
           All Products <span>&rarr;</span>
