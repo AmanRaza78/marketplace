@@ -1,6 +1,7 @@
 import ProductCard from "@/components/product-card";
 import prisma from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { redirect } from "next/navigation";
 
 async function getData(userId: string) {
   const data = await prisma.product.findMany({
@@ -23,7 +24,7 @@ export default async function MyProductsPage() {
   const user = await getUser();
 
   if (!user) {
-    throw new Error("Not Authorized");
+    return redirect("/api/auth/login");
   }
 
   const data = await getData(user.id);

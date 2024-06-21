@@ -1,5 +1,4 @@
 import NewestProducts from "@/components/newest-products";
-import { Card } from "@/components/ui/card";
 
 export default function Home() {
   return (

@@ -1,3 +1,5 @@
+import { BuyProduct } from "@/app/action";
+import { BuyButton } from "@/components/buy-button";
 import ProductDescription from "@/components/product-description";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,8 +72,12 @@ export default async function ProductPage({
         </h1>
 
         <p className="mt-2 text-muted-foreground">{data?.smalldescription}</p>
-        <Button>Buy Product</Button>
 
+        <form action={BuyProduct}>
+          <input type="hidden" name="id" value={data?.id} />
+          <BuyButton price={data?.price as number} />
+        </form>
+        
         <div className="border-t border-gray-200 mt-10 pt-10">
           <div className="grid grid-cols-2 w-full gap-y-3">
             <h3 className="text-sm font-medium text-muted-foreground col-span-1">

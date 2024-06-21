@@ -7,7 +7,6 @@ async function getData() {
         select:{
             price: true,
             smalldescription:true,
-            category:true,
             name:true,
             id:true,
             images:true
