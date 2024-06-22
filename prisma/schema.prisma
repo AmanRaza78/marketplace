@@ -14,30 +14,31 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User{
-  id String @id
-  email String
-  firstname String
-  lastname String
-  profilepicture String? 
-  product Product[]
+model User {
+  id                     String    @id
+  email                  String
+  firstname              String
+  lastname               String
+  profilepicture         String?
+  stripeConnectAccountId String    @unique
+  isAccountConnected     Boolean   @default(false)
+  product                Product[]
 }
 
-model Product{
-  id String @id @default(uuid())
-  name String
-  price Int
+model Product {
+  id               String       @id @default(uuid())
+  name             String
+  price            Int
   smalldescription String
-  description Json
-  images String[]
-  productfile String
-  category CategoryEnum
+  description      Json
+  images           String[]
+  productfile      String
+  category         CategoryEnum
 
   createdAt DateTime @default(now())
-  userId String?
-  user User? @relation(fields: [userId], references: [id])
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
 }
-
 
 enum CategoryEnum {
   template

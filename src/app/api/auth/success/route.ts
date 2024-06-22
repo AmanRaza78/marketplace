@@ -1,4 +1,5 @@
 import prisma from "@/lib/db";
+import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -17,13 +18,28 @@ export async function GET(){
     })
 
     if(!dbuser){
+        const account = await stripe.accounts.create({
+            email: user.email as string,
+            controller:{
+                losses:{
+                    payments:"application"
+                },
+                fees:{
+                    payer:"application"
+                },
+                stripe_dashboard:{
+                    type:"express"
+                }
+            }
+        })
         await prisma.user.create({
             data:{
                 id: user.id,
                 firstname: user.given_name ?? "",
                 lastname: user.family_name ?? "",
                 email: user.email ?? "",
-                profilepicture: user.picture ?? ""
+                profilepicture: user.picture ?? "",
+                stripeConnectAccountId: account.id
             }
         })
     }

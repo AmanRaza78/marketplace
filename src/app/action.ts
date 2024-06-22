@@ -139,7 +139,12 @@ export async function BuyProduct(formData:FormData){
       name:true,
       smalldescription:true,
       price: true,
-      images:true
+      images:true,
+      user:{
+        select:{
+          stripeConnectAccountId:true
+        }
+      }
     }
   })
 
@@ -159,10 +164,70 @@ export async function BuyProduct(formData:FormData){
         quantity: 1,
       }
     ],
+
+    payment_intent_data: {
+      application_fee_amount: Math.round((data?.price as number) * 100) * 0.1,
+      transfer_data: {
+        destination: data?.user?.stripeConnectAccountId as string,
+      },
+    },
+
     success_url: "http://localhost:3000/payment/success",
     cancel_url: "http://localhost:3000/payment/cancel"
   })
 
   return redirect(session.url as string)
+}
+
+export async function CreateStripeAccoutnLink(){
+  const {getUser} = getKindeServerSession()
+  const user = await getUser()
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  const data = await prisma.user.findUnique({
+    where:{
+      id:user.id
+    },
+    select:{
+      stripeConnectAccountId:true
+    }
+  })
+
+  const accountLink = await stripe.accountLinks.create({
+    account: data?.stripeConnectAccountId as string,
+    refresh_url: "http://localhost:3000/billing",
+    return_url:  `http://localhost:3000/return/${data?.stripeConnectAccountId}`,
+    type:"account_onboarding"
+  })
+
+  return redirect(accountLink.url)
+}
+
+export async function GetStripeDashboardLink(){
+  const {getUser} = getKindeServerSession()
+
+  const user = await getUser()
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  const data = await prisma.user.findUnique({
+    where:{
+      id:user.id
+    },
+    select:{
+      stripeConnectAccountId:true
+    }
+  })
+
+  const loginLink = await stripe.accounts.createLoginLink(
+    data?.stripeConnectAccountId as string
+  )
+
+  return redirect(loginLink.url)
 }
  
