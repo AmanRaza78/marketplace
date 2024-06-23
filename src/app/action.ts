@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { type CategoryEnum } from "@prisma/client";
+import { link } from "fs";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -140,6 +141,7 @@ export async function BuyProduct(formData: FormData) {
       smalldescription: true,
       price: true,
       images: true,
+      productfile:true,
       user: {
         select: {
           stripeConnectAccountId: true,
@@ -164,6 +166,10 @@ export async function BuyProduct(formData: FormData) {
         quantity: 1,
       },
     ],
+    
+    metadata:{
+      link: data?.productfile as string
+    },
 
     payment_intent_data: {
       application_fee_amount: Math.round((data?.price as number) * 100) * 0.1,
@@ -174,12 +180,12 @@ export async function BuyProduct(formData: FormData) {
 
     success_url:
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/success"
-        : "https://digimart-ten.vercel.app/success",
+        ? "http://localhost:3000/payment/success"
+        : "https://digimart-ten.vercel.app/payment/success",
     cancel_url:
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/cancel"
-        : "https://digimart-ten.vercel.app/cancel",
+        ? "http://localhost:3000/payment/cancel"
+        : "https://digimart-ten.vercel.app/payment/cancel",
   });
 
   return redirect(session.url as string);
