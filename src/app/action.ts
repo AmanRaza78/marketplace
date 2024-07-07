@@ -131,6 +131,13 @@ export async function UpdateUserSetting(prevState: any, formData: FormData) {
 }
 
 export async function BuyProduct(formData: FormData) {
+  const { getUser } = getKindeServerSession();
+
+  const user = await getUser();
+
+  if (!user || !user.email) {
+    return redirect("/api/auth/login");
+  }
   const id = formData.get("id") as string;
   const data = await prisma.product.findUnique({
     where: {
@@ -141,7 +148,7 @@ export async function BuyProduct(formData: FormData) {
       smalldescription: true,
       price: true,
       images: true,
-      productfile:true,
+      productfile: true,
       user: {
         select: {
           stripeConnectAccountId: true,
@@ -166,9 +173,10 @@ export async function BuyProduct(formData: FormData) {
         quantity: 1,
       },
     ],
-    
-    metadata:{
-      link: data?.productfile as string
+
+    metadata: {
+      link: data?.productfile as string,
+      email:user.email as string
     },
 
     payment_intent_data: {
