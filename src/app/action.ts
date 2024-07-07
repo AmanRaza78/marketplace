@@ -135,7 +135,7 @@ export async function BuyProduct(formData: FormData) {
 
   const user = await getUser();
 
-  if (!user || !user.email) {
+  if (!user) {
     return redirect("/api/auth/login");
   }
   const id = formData.get("id") as string;
@@ -152,6 +152,7 @@ export async function BuyProduct(formData: FormData) {
       user: {
         select: {
           stripeConnectAccountId: true,
+          email:true,
         },
       },
     },
@@ -176,7 +177,7 @@ export async function BuyProduct(formData: FormData) {
 
     metadata: {
       link: data?.productfile as string,
-      email:user.email as string
+      email:data?.user?.email as string
     },
 
     payment_intent_data: {
