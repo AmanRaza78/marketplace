@@ -152,7 +152,6 @@ export async function BuyProduct(formData: FormData) {
       user: {
         select: {
           stripeConnectAccountId: true,
-          email:true,
         },
       },
     },
@@ -177,7 +176,6 @@ export async function BuyProduct(formData: FormData) {
 
     metadata: {
       link: data?.productfile as string,
-      email:data?.user?.email as string
     },
 
     payment_intent_data: {

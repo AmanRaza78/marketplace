@@ -27,11 +27,11 @@ export async function POST(req: Request) {
     case "checkout.session.completed": {
       const session = event.data.object;
       const link = session.metadata?.link;
-      const useremail = session.metadata?.email
+      const email = session.customer_details?.email
 
       const { data, error } = await resend.emails.send({
         from: "DigiMart <onboarding@resend.dev>",
-        to: useremail as string,
+        to: email as string,
         subject: "Your Product from DigiMart",
         react: ProductEmail({
           link: link as string,
